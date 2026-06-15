@@ -262,6 +262,7 @@
         <a data-go="kripto">Kripto</a>
         <a data-go="vesti">Vesti</a>
         <a data-go="banke">Banke</a>
+        <a data-go="kontakt">Kontakt</a>
       </div>
       <a class="nav-cta" data-go="kalkulator">Izračunaj ratu</a>
     </div>
@@ -392,10 +393,34 @@
         </div>
       </div>
     </section>
+
+    <!-- KONTAKT -->
+    <section class="sec reveal" id="kontakt">
+      <span class="secnum">06 — KONTAKT</span>
+      <div class="sec-head"><div><h2>Pišite nam</h2></div></div>
+      <div class="card" style="max-width:600px">
+        <form id="kontaktForm" style="padding:30px;display:flex;flex-direction:column;gap:18px" onsubmit="sendMail(event)">
+          <div class="field" style="margin-bottom:0">
+            <label style="margin-bottom:8px;display:block;font-size:.82rem;color:var(--muted)">Ime i prezime</label>
+            <input class="numin" type="text" id="fIme" placeholder="Marko Marković" required>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label style="margin-bottom:8px;display:block;font-size:.82rem;color:var(--muted)">Email adresa</label>
+            <input class="numin" type="email" id="fEmail" placeholder="vas@email.com" required>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label style="margin-bottom:8px;display:block;font-size:.82rem;color:var(--muted)">Poruka</label>
+            <textarea class="numin" id="fPoruka" rows="5" placeholder="Vaša poruka…" required style="resize:vertical;font-family:inherit;font-size:.95rem"></textarea>
+          </div>
+          <button type="submit" class="btn-dark" style="align-self:flex-start;padding:13px 32px" id="fBtn">Pošalji poruku</button>
+          <div id="fMsg" style="font-size:.88rem;display:none"></div>
+        </form>
+      </div>
+    </section>
   </main>
 
   <footer>
-    <div class="foot-in"><b>MojaKamata.rs</b> · Informativni alat, nije finansijski savet · Kursevi i cene su orijentacioni</div>
+    <div class="foot-in"><b>MojaKamata.rs</b> · Informativni alat, nije finansijski savet · Kursevi i cene su orijentacioni · <a href="mailto:kontakt@mojakamata.rs" style="color:var(--ink)">kontakt@mojakamata.rs</a></div>
   </footer>
 
 <script>
@@ -500,6 +525,25 @@
     }
   }
   loadCrypto();setInterval(loadCrypto,60000);
+
+  /* kontakt forma */
+  function sendMail(e){
+    e.preventDefault();
+    const ime=document.getElementById('fIme').value;
+    const email=document.getElementById('fEmail').value;
+    const poruka=document.getElementById('fPoruka').value;
+    const btn=document.getElementById('fBtn');
+    const msg=document.getElementById('fMsg');
+    const subject=encodeURIComponent('Poruka sa MojaKamata.rs — '+ime);
+    const body=encodeURIComponent('Ime: '+ime+'\nEmail: '+email+'\n\nPoruka:\n'+poruka);
+    window.location.href='mailto:kontakt@mojakamata.rs?subject='+subject+'&body='+body;
+    btn.textContent='Otvoreno u email klijentu ✓';
+    btn.disabled=true;
+    msg.style.display='block';
+    msg.style.color='var(--green)';
+    msg.textContent='Otvori se tvoj email program — samo klikni Pošalji.';
+    setTimeout(()=>{btn.textContent='Pošalji poruku';btn.disabled=false;msg.style.display='none';},6000);
+  }
 
   /* vesti sa Ghost-a */
   const GHOST_URL = 'https://ghost-production-182e.up.railway.app';
