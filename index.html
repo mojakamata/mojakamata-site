@@ -420,7 +420,7 @@
   </main>
 
   <footer>
-    <div class="foot-in"><b>MojaKamata.rs</b> · Informativni alat, nije finansijski savet · Kursevi i cene su orijentacioni · <a href="mailto:kontakt@mojakamata.rs" style="color:var(--ink)">kontakt@mojakamata.rs</a></div>
+    <div class="foot-in"><b>MojaKamata.rs</b> · Informativni alat, nije finansijski savet · Kursevi i cene su orijentacioni · <a href="mailto:mojakamata@gmail.com" style="color:var(--ink)">mojakamata@gmail.com</a></div>
   </footer>
 
 <script>
@@ -536,7 +536,7 @@
     const msg=document.getElementById('fMsg');
     const subject=encodeURIComponent('Poruka sa MojaKamata.rs — '+ime);
     const body=encodeURIComponent('Ime: '+ime+'\nEmail: '+email+'\n\nPoruka:\n'+poruka);
-    window.location.href='mailto:kontakt@mojakamata.rs?subject='+subject+'&body='+body;
+    window.open('mailto:mojakamata@gmail.com?subject='+subject+'&body='+body,'_blank');
     btn.textContent='Otvoreno u email klijentu ✓';
     btn.disabled=true;
     msg.style.display='block';
