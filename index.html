@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moja Kamata — Pošten kalkulator, kurs NBS i kripto uživo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+  :root{
+    --bg:#eceae6;
+    --paper:#f6f5f2;
+    --card:#ffffff;
+    --ink:#0e0f10;
+    --muted:#86837d;
+    --line:#e2dfd9;
+    --line-soft:#ecebe7;
+    --accent:#0e0f10;
+    --green:#16a36a;
+    --red:#e0524b;
+    --pill:#16a36a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);
+    line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+  a{text-decoration:none;color:inherit}
+
+  /* ---- nav ---- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(12px);background:rgba(236,234,230,.8);
+    border-bottom:1px solid transparent;transition:border-color .3s;
+  }
+  nav.scrolled{border-color:var(--line)}
+  .nav-in{max-width:1140px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between}
+  .brand{font-weight:800;font-size:1.15rem;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+  .brand .m{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#7b6cff,#3aa0ff 45%,#16d0a8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.95rem}
+  .nav-links{display:flex;gap:30px;font-size:.88rem;color:var(--muted)}
+  .nav-links a{transition:color .15s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{background:var(--ink);color:#fff;padding:9px 20px;border-radius:99px;font-size:.85rem;font-weight:600}
+  @media(max-width:760px){.nav-links{display:none}}
+
+  /* ---- hero ---- */
+  .hero{max-width:1140px;margin:0 auto;padding:70px 28px 30px}
+  .hero-top{display:grid;grid-template-columns:1.6fr 1fr;gap:40px;align-items:start}
+  @media(max-width:820px){.hero-top{grid-template-columns:1fr;gap:24px}}
+  h1{
+    font-weight:900;font-size:clamp(2.7rem,7vw,5.2rem);line-height:.98;
+    letter-spacing:-.035em;
+  }
+  h1 .g{
+    background:linear-gradient(110deg,#7b6cff,#3aa0ff 40%,#16d0a8 70%,#9b6cff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-style:italic;font-weight:800;
+    display:inline-block;padding-right:.12em;line-height:1.06;
+  }
+  .hero-right{padding-top:10px}
+  .hero-right p{font-size:1rem;color:var(--muted);max-width:330px}
+  .hero-btns{display:flex;gap:12px;margin-top:34px}
+  .btn-dark{background:var(--ink);color:#fff;padding:13px 26px;border-radius:99px;font-weight:600;font-size:.92rem;border:none;cursor:pointer}
+  .btn-ghost{background:transparent;color:var(--ink);padding:13px 26px;border-radius:99px;font-weight:600;font-size:.92rem;border:1px solid var(--line);cursor:pointer}
+
+  /* ---- aurora panel with tabs ---- */
+  .panel{
+    position:relative;margin-top:54px;background:var(--card);
+    border:1px solid var(--line);border-radius:26px;overflow:hidden;
+    box-shadow:0 30px 60px -40px rgba(0,0,0,.25);
+  }
+  .aurora{
+    position:absolute;inset:0;z-index:0;opacity:.9;
+    background:
+      radial-gradient(40% 55% at 50% 50%,#5ad6ff 0%,transparent 60%),
+      radial-gradient(35% 50% at 38% 45%,#9b7bff 0%,transparent 60%),
+      radial-gradient(35% 50% at 62% 55%,#16d0a8 0%,transparent 60%);
+    filter:blur(26px);
+    animation:drift 14s ease-in-out infinite alternate;
+  }
+  @keyframes drift{
+    0%{transform:scale(1) translate(0,0)}
+    50%{transform:scale(1.12) translate(2%,-2%)}
+    100%{transform:scale(1.04) translate(-2%,2%)}
+  }
+  .panel-tabs{
+    position:relative;z-index:2;display:flex;gap:6px;flex-wrap:wrap;
+    padding:18px 20px;background:linear-gradient(#fff,rgba(255,255,255,.4));
+    border-bottom:1px solid var(--line-soft);
+  }
+  .tab{
+    padding:9px 16px;border-radius:99px;font-size:.85rem;font-weight:600;color:var(--muted);
+    cursor:pointer;transition:all .18s;border:1px solid transparent;background:transparent;
+  }
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:var(--ink);color:#fff}
+  .panel-mid{
+    position:relative;z-index:1;min-height:230px;display:flex;align-items:center;justify-content:center;
+    padding:50px 20px;
+  }
+  .panel-mid .badge-live{
+    position:absolute;top:18px;right:20px;z-index:3;
+    display:flex;align-items:center;gap:7px;font-size:.76rem;color:var(--ink);
+    background:rgba(255,255,255,.85);padding:6px 13px;border-radius:99px;border:1px solid var(--line-soft);
+  }
+  .dotlive{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(22,163,106,.5)}70%{box-shadow:0 0 0 7px rgba(22,163,106,0)}100%{box-shadow:0 0 0 0 rgba(22,163,106,0)}}
+  .mid-quote{position:relative;z-index:2;text-align:center;max-width:480px}
+  .mid-quote .big{font-weight:900;font-size:clamp(1.5rem,3.5vw,2.1rem);letter-spacing:-.02em;line-height:1.1;color:#0a0a0a}
+  .mid-quote .small{color:#2a2a2a;margin-top:10px;font-size:.95rem;font-weight:500}
+  .panel-foot{
+    position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    padding:16px 20px;background:linear-gradient(rgba(255,255,255,.4),#fff);border-top:1px solid var(--line-soft);
+    font-size:.82rem;color:var(--muted);
+  }
+  .panel-foot .chips{display:flex;gap:18px;flex-wrap:wrap}
+  .panel-foot .chips span{cursor:pointer;transition:color .15s}
+  .panel-foot .chips span:hover{color:var(--ink)}
+
+  .trusted{text-align:center;padding:46px 28px 10px;color:var(--muted);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
+
+  /* ---- sections ---- */
+  .wrap{max-width:1140px;margin:0 auto;padding:30px 28px 90px}
+  .sec{scroll-margin-top:90px;margin-bottom:30px}
+  /* scroll reveal */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  /* section number */
+  .secnum{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--muted);letter-spacing:.1em;margin-bottom:6px;display:block}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+  .sec-head h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+  .sec-head .note{font-size:.85rem;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+
+  /* calculator */
+  .calc-body{display:grid;grid-template-columns:1fr 1fr;gap:34px;padding:30px}
+  @media(max-width:620px){.calc-body{grid-template-columns:1fr;gap:26px}}
+  .field{margin-bottom:24px}.field:last-child{margin-bottom:0}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:.82rem;color:var(--muted);margin-bottom:11px}
+  .field label .v{color:var(--ink);font-weight:700;font-family:'JetBrains Mono',monospace}
+  input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(var(--ink),var(--ink)) no-repeat,var(--line);background-size:50% 100%;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid #fff}
+  .numin{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:11px 13px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1rem;margin-top:6px}
+  .numin:focus{outline:none;border-color:var(--ink)}
+  .calc-out{background:var(--ink);border-radius:18px;padding:28px;display:flex;flex-direction:column;justify-content:center;color:#fff}
+  .calc-out .lbl{font-size:.72rem;color:#9a9a9a;text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px}
+  .calc-out .big{font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1;letter-spacing:-.025em}
+  .calc-out .big small{font-size:.9rem;font-weight:500;color:#9a9a9a}
+  .ohr{height:1px;background:#262626;margin:22px 0}
+  .orow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:13px;font-size:.9rem}.orow:last-child{margin-bottom:0}
+  .orow span{color:#9a9a9a}.orow b{font-family:'JetBrains Mono',monospace;font-weight:600}
+  .orow.warn b{color:#f4c45a}
+
+  /* two-col row for kurs + crypto */
+  .two{display:grid;grid-template-columns:1fr 1.3fr;gap:30px}
+  @media(max-width:820px){.two{grid-template-columns:1fr}}
+
+  .list-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line-soft)}
+  .list-head .t{font-weight:700;font-size:1rem}
+  .list-head .badge{font-size:.68rem;color:var(--green);background:rgba(22,163,106,.1);border:1px solid rgba(22,163,106,.25);padding:4px 10px;border-radius:99px}
+
+  .rate{display:flex;align-items:center;gap:13px;padding:13px 22px;border-bottom:1px solid var(--line-soft)}.rate:last-child{border:none}
+  .flag{width:32px;height:32px;border-radius:8px;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:1rem}
+  .rate .cc{font-weight:600;font-size:.9rem}.rate .cn{font-size:.72rem;color:var(--muted)}
+  .rate .pv{margin-left:auto;text-align:right}.rate .pv .val{font-family:'JetBrains Mono',monospace;font-weight:700}.rate .pv .sub{font-size:.7rem;color:var(--muted)}
+
+  .crow{display:flex;align-items:center;gap:13px;padding:12px 22px;border-bottom:1px solid var(--line-soft);transition:background .15s}.crow:last-child{border:none}
+  .crow:hover{background:var(--paper)}
+  .crank{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--muted);width:16px}
+  .cicon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;color:#fff}
+  .cname{font-weight:600;font-size:.88rem}.csym{font-size:.7rem;color:var(--muted);text-transform:uppercase}
+  .spark{width:56px;height:24px;margin-left:auto}
+  .cprice{text-align:right;font-family:'JetBrains Mono',monospace;min-width:96px}
+  .cprice .p{font-weight:700;font-size:.9rem}.cprice .c{font-size:.72rem;margin-top:1px}
+  .up{color:var(--green)}.down{color:var(--red)}
+  .buybtn{margin-left:14px;background:var(--green);color:#fff;font-weight:700;font-size:.78rem;padding:7px 16px;border-radius:99px;text-decoration:none;transition:opacity .15s;white-space:nowrap}
+  .buybtn:hover{opacity:.85}
+  @media(max-width:560px){.spark{display:none}}
+
+  /* ---- crypto ticker (horizontal, infinite) ---- */
+  .ticker{
+    position:relative;overflow:hidden;background:var(--ink);border-radius:16px;
+    padding:14px 0;margin-bottom:30px;
+  }
+  .ticker-track{display:flex;width:max-content;animation:scroll 48s linear infinite}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .titem{display:flex;align-items:center;gap:10px;padding:0 26px;border-right:1px solid #232323;white-space:nowrap}
+  .ticon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.64rem;color:#fff;flex-shrink:0}
+  .tsym{color:#fff;font-weight:700;font-size:.84rem;letter-spacing:.02em}
+  .tprice{color:#cfcfcf;font-family:'JetBrains Mono',monospace;font-size:.84rem;font-weight:600}
+  .tch{font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600}
+  .ticker-label{
+    position:absolute;left:0;top:0;bottom:0;z-index:3;display:flex;align-items:center;gap:7px;
+    padding:0 18px;background:linear-gradient(90deg,var(--ink) 70%,transparent);
+    color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  }
+  .ticker-label .dotlive{background:var(--green)}
+  /* dark fade edges so prices dissolve into black, not white */
+  .ticker::after{
+    content:'';position:absolute;top:0;right:0;bottom:0;width:60px;z-index:2;
+    background:linear-gradient(90deg,transparent,var(--ink));pointer-events:none;
+  }
+
+  /* news cards with images */
+  .see-all{font-size:.88rem;font-weight:600;color:var(--ink);white-space:nowrap}
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  @media(max-width:820px){.vgrid{grid-template-columns:1fr}}
+  .vcard{display:block;cursor:pointer;text-decoration:none;color:inherit;transition:transform .18s}
+  .vcard:hover{transform:translateY(-4px)}
+  .vcard:hover h3{color:var(--green)}
+  .vimg{position:relative;height:200px;border-radius:16px;background-size:cover;background-position:center;overflow:hidden;border:1px solid var(--line)}
+  .vbadge{position:absolute;top:14px;left:14px;color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.08em;padding:6px 12px;border-radius:7px}
+  .vbody{padding:16px 2px 0}
+  .vdate{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+  .vcard h3{font-size:1.08rem;font-weight:700;letter-spacing:-.01em;line-height:1.3;margin-bottom:9px;transition:color .15s}
+  .vcard p{font-size:.9rem;color:var(--muted);line-height:1.55}
+
+  /* bank ad row */
+  .banks-head{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+  .banks-sub{color:var(--muted);font-size:.88rem;margin-bottom:20px}
+  .bank{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:12px;transition:transform .15s,box-shadow .15s}
+  .bank:hover{transform:translateY(-2px);box-shadow:0 16px 34px -26px rgba(0,0,0,.4)}
+  .blogo{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.2rem;color:#fff}
+  .bank .name{font-weight:700}.bank .meta{font-size:.8rem;color:var(--muted)}
+  .bank .rate-b{margin-left:auto;text-align:right}.bank .rate-b .pct{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.2rem}.bank .rate-b .l{font-size:.7rem;color:var(--muted)}
+  .bank .go{background:var(--ink);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-weight:600;font-size:.82rem;margin-left:16px;cursor:pointer;white-space:nowrap}
+
+  .ad{border:1px dashed var(--line);border-radius:16px;padding:18px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#b7b3ab;margin:24px 0}
+
+  /* advertise-with-us block */
+  .advertise{position:relative;overflow:hidden;border-radius:22px;background:var(--ink);color:#fff;padding:48px 40px}
+  @media(max-width:560px){.advertise{padding:36px 24px}}
+  .adv-glow{position:absolute;top:-60%;right:-10%;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle,rgba(123,108,255,.45),rgba(22,208,168,.25) 45%,transparent 70%);filter:blur(20px)}
+  .adv-inner{position:relative;z-index:1;max-width:560px}
+  .adv-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#9b95ff}
+  .advertise h3{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;letter-spacing:-.025em;margin:12px 0 16px}
+  .advertise p{color:#c7c5cf;font-size:1rem;line-height:1.6;margin-bottom:12px}
+  .advertise .adv-sub{font-size:.92rem;color:#96939f}
+  .adv-btn{display:inline-block;margin-top:18px;background:#fff;color:var(--ink);padding:13px 26px;border-radius:99px;font-weight:700;font-size:.92rem;transition:transform .15s}
+  .adv-btn:hover{transform:translateY(-2px)}
+
+  .skel{padding:36px 22px;text-align:center;color:var(--muted);font-size:.85rem}
+
+  footer{border-top:1px solid var(--line);margin-top:40px}
+  .foot-in{max-width:1140px;margin:0 auto;padding:34px 28px;text-align:center;color:var(--muted);font-size:.8rem}
+  .foot-in b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+  <nav id="nav">
+    <div class="nav-in">
+      <div class="brand"><span class="m">M</span> MojaKamata</div>
+      <div class="nav-links">
+        <a data-go="kalkulator">Kalkulator</a>
+        <a data-go="kurs">Kurs NBS</a>
+        <a data-go="kripto">Kripto</a>
+        <a data-go="vesti">Vesti</a>
+        <a data-go="banke">Banke</a>
+      </div>
+      <a class="nav-cta" data-go="kalkulator">Izračunaj ratu</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-top">
+      <h1>Banka ti<br>komplikuje.<br><span class="g">Mi pojednostavimo.</span></h1>
+      <div class="hero-right">
+        <p>Pošten kalkulator kredita, zvanični kurs Narodne banke i cene kripto valuta uživo. Bez zvezdica, bez sitnih slova — samo tačna cifra koju plaćaš.</p>
+        <div class="hero-btns">
+          <button class="btn-dark" data-go="kalkulator">Izračunaj ratu</button>
+          <button class="btn-ghost" data-go="banke">Uporedi banke</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- aurora panel -->
+    <div class="panel">
+      <div class="aurora"></div>
+      <div class="panel-tabs">
+        <button class="tab active" data-go="kalkulator">Kalkulator kredita</button>
+        <button class="tab" data-go="kurs">Kurs NBS</button>
+        <button class="tab" data-go="kripto">Kripto uživo</button>
+        <button class="tab" data-go="vesti">Vesti</button>
+        <button class="tab" data-go="banke">Najniže kamate</button>
+      </div>
+      <div class="panel-mid">
+        <div class="badge-live"><span class="dotlive"></span> Podaci uživo</div>
+        <div class="mid-quote">
+          <div class="big">„Pet posto" zvuči malo.<br>Dok ne vidiš ukupnu cifru.</div>
+          <div class="small">Klikni karticu iznad i skroluj do alata koji ti treba.</div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <div class="chips">
+          <span data-go="kalkulator">→ Rata kredita</span>
+          <span data-go="kurs">→ Kurs evra danas</span>
+          <span data-go="kripto">→ Bitcoin cena</span>
+          <span data-go="vesti">→ Odluka NBS</span>
+        </div>
+        <span class="mono" id="footClock">--:--:--</span>
+      </div>
+    </div>
+
+    <div class="trusted">Tačni podaci · NBS · CoinGecko · ažuriranje u realnom vremenu</div>
+  </header>
+
+  <!-- CRYPTO TICKER -->
+  <div class="wrap" style="padding-top:0;padding-bottom:0">
+    <div class="ticker" id="ticker">
+      <div class="ticker-label"><span class="dotlive" style="width:7px;height:7px;border-radius:50%;display:inline-block"></span> Uživo</div>
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </div>
+
+  <main class="wrap">
+
+    <!-- KALKULATOR -->
+    <section class="sec reveal" id="kalkulator">
+      <div class="sec-head"><div><span class="secnum">01 — ALAT</span><h2>Kalkulator kredita</h2></div><span class="note">Povuci klizače — rata se računa odmah</span></div>
+      <div class="card">
+        <div class="calc-body">
+          <div>
+            <div class="field"><label>Iznos kredita <span class="v" id="vI">1.500.000 RSD</span></label><input type="range" id="iznos" min="50000" max="10000000" step="50000" value="1500000"></div>
+            <div class="field"><label>Kamatna stopa (god.) <span class="v" id="vS">5,9%</span></label><input type="range" id="stopa" min="1" max="20" step="0.1" value="5.9"></div>
+            <div class="field"><label>Rok otplate <span class="v" id="vR">60 meseci</span></label><input type="range" id="rok" min="6" max="360" step="6" value="60"></div>
+            <div class="field"><label for="iN">Tačan iznos</label><input class="numin" type="number" id="iN" value="1500000"></div>
+          </div>
+          <div class="calc-out">
+            <div class="lbl">Mesečna rata</div>
+            <div class="big" id="rata">28.957 <small>RSD</small></div>
+            <div class="ohr"></div>
+            <div class="orow"><span>Ukupno vraćaš</span><b id="uk">1.737.420</b></div>
+            <div class="orow warn"><span>Čista kamata</span><b id="kam">237.420</b></div>
+            <div class="orow"><span>Preplaćuješ</span><b id="pp">+15,8%</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ad">Reklamni prostor — Google AdSense</div>
+
+    <!-- KURS + KRIPTO -->
+    <div class="two">
+      <section class="sec reveal" id="kurs" style="margin-bottom:0">
+        <div class="sec-head"><div><span class="secnum">02 — KURS</span><h2 style="font-size:1.3rem">Kurs NBS</h2></div></div>
+        <div class="card">
+          <div class="list-head"><span class="t" id="kursDatum">Srednji kurs</span><span class="badge">NBS</span></div>
+          <div id="rateList"><div class="skel">Učitavam kurs…</div></div>
+        </div>
+      </section>
+
+      <section class="sec reveal" id="kripto" style="margin-bottom:0">
+        <div class="sec-head"><div><span class="secnum">03 — KRIPTO</span><h2 style="font-size:1.3rem">Top kripto · detaljno</h2></div></div>
+        <div class="card">
+          <div class="list-head"><span class="t">Cene uživo · 24h</span><span class="badge">uživo</span></div>
+          <div id="cryptoList"><div class="skel">Učitavam cene…</div></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="ad">Reklamni prostor — partnerske berze / banke</div>
+
+    <!-- VESTI -->
+    <section class="sec reveal" id="vesti">
+      <div class="sec-head">
+        <div><span class="secnum">04 — VESTI</span><h2>Vesti i analize</h2><span class="note" style="display:block;margin-top:4px">Ostanite informisani o promenama na tržištu i bankarskim odlukama.</span></div>
+        <a class="see-all" data-go="vesti">Sve vesti →</a>
+      </div>
+      <div class="vgrid">
+        <a class="vcard">
+          <div class="vimg" style="background-image:url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=70')">
+            <span class="vbadge" style="background:#0e0f10">TRŽIŠTE</span>
+          </div>
+          <div class="vbody">
+            <div class="vdate">11. jun 2026.</div>
+            <h3>NBS zadržala referentnu stopu na 5,75%</h3>
+            <p>Izvršni odbor Narodne banke Srbije zadržao je referentnu kamatnu stopu na nepromenjenom nivou. Sledeća sednica…</p>
+          </div>
+        </a>
+        <a class="vcard">
+          <div class="vimg" style="background-image:url('https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=600&q=70')">
+            <span class="vbadge" style="background:#16a36a">STAMBENI</span>
+          </div>
+          <div class="vbody">
+            <div class="vdate">10. jun 2026.</div>
+            <h3>Ograničenje kamata na stambene kredite</h3>
+            <p>Najavljen novi nacrt zakona o ograničenju kamatnih stopa. Korisnici sa promenljivom stopom prate dešavanja…</p>
+          </div>
+        </a>
+        <a class="vcard">
+          <div class="vimg" style="background-image:url('https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?w=600&q=70')">
+            <span class="vbadge" style="background:#1e5fb0">SAVETI</span>
+          </div>
+          <div class="vbody">
+            <div class="vdate">8. jun 2026.</div>
+            <h3>Kako se zaštititi od inflacije u 2026.</h3>
+            <p>Analitičari predviđaju stabilizaciju cena, ali štediše se i dalje okreću proverenim vrednostima poput zlata…</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- BANKE / OGLAŠAVANJE -->
+    <section class="sec reveal" id="banke">
+      <span class="secnum">05 — PONUDE</span>
+      <div class="banks-head">Banke sa najnižom kamatom</div>
+      <div class="banks-sub">Uskoro — uporedna lista aktuelnih kamata vodećih banaka u Srbiji.</div>
+
+      <div class="advertise">
+        <div class="adv-glow"></div>
+        <div class="adv-inner">
+          <span class="adv-tag">Reklamni prostor</span>
+          <h3>Vaša banka ovde.</h3>
+          <p>Svakog dana ljudi koji upravo traže kredit dolaze na MojaKamata.rs i računaju svoju ratu. To su vaši budući klijenti — u trenutku kad donose odluku.</p>
+          <p class="adv-sub">Banke, kreditni posrednici i osiguravajuće kuće — predstavite svoju ponudu tačno onima koji je traže.</p>
+          <a class="adv-btn" href="mailto:kontakt@mojakamata.rs?subject=Oglašavanje na MojaKamata.rs">Kontaktirajte nas →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot-in"><b>MojaKamata.rs</b> · Informativni alat, nije finansijski savet · Kursevi i cene su orijentacioni</div>
+  </footer>
+
+<script>
+  // ===== AFFILIATE LINK — zameni svojim MEXC linkom kad dobiješ nalog =====
+  const MEXC_REF = "https://www.mexc.com/register?inviteCode=TVOJ_KOD";
+  // =======================================================================
+
+  const fmt=n=>Math.round(n).toLocaleString('sr-RS');
+  const fmt2=n=>n.toLocaleString('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  /* nav scroll border */
+  const nav=document.getElementById('nav');
+  addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>10));
+
+  /* tabs + links scroll */
+  function go(id){
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.go===id));
+  }
+  document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+
+  /* clock */
+  setInterval(()=>{document.getElementById('footClock').textContent=new Date().toLocaleTimeString('sr-RS')},1000);
+
+  /* calculator */
+  const iR=iznos,iN2=document.getElementById('iN'),sR=stopa,rR=rok;
+  function track(el){el.style.backgroundSize=((el.value-el.min)/(el.max-el.min)*100)+'% 100%'}
+  function calc(){
+    const P=+iR.value,g=+sR.value,n=+rR.value,m=g/100/12;
+    const rata=m===0?P/n:P*m*Math.pow(1+m,n)/(Math.pow(1+m,n)-1);
+    const uk=rata*n,kam=uk-P;
+    vI.textContent=fmt(P)+' RSD';vS.textContent=g.toFixed(1).replace('.',',')+'%';vR.textContent=n+' meseci';
+    document.getElementById('rata').innerHTML=fmt(rata)+' <small>RSD</small>';
+    uk2.textContent=fmt(uk);document.getElementById('kam').textContent=fmt(kam);
+    document.getElementById('pp').textContent='+'+(kam/P*100).toFixed(1).replace('.',',')+'%';
+    [iR,sR,rR].forEach(track);
+  }
+  const uk2=document.getElementById('uk');
+  iR.oninput=()=>{iN2.value=iR.value;calc()};
+  iN2.oninput=()=>{iR.value=Math.max(+iR.min,Math.min(+iR.max,+iN2.value||0));calc()};
+  sR.oninput=calc;rR.oninput=calc;calc();
+
+  /* kurs — open.er-api.com (besplatan, podržava RSD), uz fallback */
+  const flags={EUR:'🇪🇺',USD:'🇺🇸',CHF:'🇨🇭',GBP:'🇬🇧'},names={EUR:'Evro',USD:'Dolar',CHF:'Franak',GBP:'Funta'};
+  function renderKurs(perRSD,datum){
+    document.getElementById('kursDatum').textContent='Srednji kurs · '+datum;
+    document.getElementById('rateList').innerHTML=['EUR','USD','CHF','GBP'].map(c=>`
+      <div class="rate"><div class="flag">${flags[c]}</div>
+      <div><div class="cc">${c}</div><div class="cn">${names[c]}</div></div>
+      <div class="pv"><div class="val">${fmt2(perRSD[c])}</div><div class="sub">za 1 ${c}</div></div></div>`).join('');
+  }
+  (async()=>{
+    // fallback (orijentacione vrednosti) ako API zakaže
+    const fb={EUR:117.29,USD:101.77,CHF:125.40,GBP:133.90};
+    try{
+      const r=await fetch('https://open.er-api.com/v6/latest/RSD');
+      const d=await r.json();
+      if(d&&d.rates){
+        const per=c=>1/d.rates[c];          // koliko RSD za 1 jedinicu valute
+        const datum=(d.time_last_update_utc||'').slice(0,16)||new Date().toLocaleDateString('sr-RS');
+        renderKurs({EUR:per('EUR'),USD:per('USD'),CHF:per('CHF'),GBP:per('GBP')},datum);
+      }else throw 0;
+    }catch(e){
+      renderKurs(fb,'orijentaciono');
+    }
+  })();
+
+  /* crypto */
+  const cc={btc:'#f7931a',eth:'#627eea',usdt:'#26a17b',bnb:'#f3ba2f',sol:'#14f195',xrp:'#23292f',usdc:'#2775ca',ada:'#0033ad',doge:'#c2a633',trx:'#eb0029'};
+  function spark(a,up){if(!a||!a.length)return'';const w=56,h=24,mn=Math.min(...a),mx=Math.max(...a),rg=mx-mn||1;
+    const p=a.map((v,i)=>`${(i/(a.length-1)*w).toFixed(1)},${(h-((v-mn)/rg)*h).toFixed(1)}`).join(' ');
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="${up?'#16a36a':'#e0524b'}" stroke-width="1.5" points="${p}"/></svg>`}
+  async function loadCrypto(){
+    try{
+      const r=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=24h');
+      const d=await r.json();
+      // detailed list
+      document.getElementById('cryptoList').innerHTML=d.map((c,i)=>{
+        const ch=c.price_change_percentage_24h||0,up=ch>=0,sp=c.sparkline_in_7d?.price?.slice(-24)||[];
+        return `<div class="crow"><div class="crank">${i+1}</div>
+          <div class="cicon" style="background:${cc[c.symbol]||'#16a36a'}">${c.symbol.slice(0,3).toUpperCase()}</div>
+          <div><div class="cname">${c.name}</div><div class="csym">${c.symbol}</div></div>
+          ${spark(sp,up)}
+          <div class="cprice"><div class="p">€${c.current_price.toLocaleString('sr-RS',{maximumFractionDigits:c.current_price<2?4:2})}</div>
+          <div class="c ${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</div></div>
+          <a class="buybtn" href="${MEXC_REF}" target="_blank" rel="nofollow sponsored">Kupi</a></div>`;
+      }).join('');
+      // ticker (duplicated for seamless loop)
+      const item=c=>{
+        const ch=c.price_change_percentage_24h||0,up=ch>=0;
+        return `<div class="titem">
+          <div class="ticon" style="background:${cc[c.symbol]||'#16a36a'}">${c.symbol.slice(0,3).toUpperCase()}</div>
+          <span class="tsym">${c.symbol.toUpperCase()}</span>
+          <span class="tprice">€${c.current_price.toLocaleString('sr-RS',{maximumFractionDigits:c.current_price<2?4:2})}</span>
+          <span class="tch ${up?'up':'down'}">${up?'▲':'▼'}${Math.abs(ch).toFixed(1)}%</span>
+        </div>`;
+      };
+      const row=d.map(item).join('');
+      document.getElementById('tickerTrack').innerHTML=row+row; // duplicate => infinite loop
+    }catch(e){
+      document.getElementById('cryptoList').innerHTML='<div class="skel">Cene nedostupne.</div>';
+    }
+  }
+  loadCrypto();setInterval(loadCrypto,60000);
+
+  /* scroll reveal */
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
