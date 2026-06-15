@@ -398,7 +398,7 @@
     <section class="sec reveal" id="kontakt">
       <span class="secnum">06 — KONTAKT</span>
       <div class="sec-head"><div><h2>Pišite nam</h2></div></div>
-      <div class="card" style="max-width:600px">
+      <div class="card" style="max-width:600px;margin:0 auto">
         <form id="kontaktForm" style="padding:30px;display:flex;flex-direction:column;gap:18px" onsubmit="sendMail(event)">
           <div class="field" style="margin-bottom:0">
             <label style="margin-bottom:8px;display:block;font-size:.82rem;color:var(--muted)">Ime i prezime</label>
@@ -473,15 +473,14 @@
       <div class="pv"><div class="val">${fmt2(perRSD[c])}</div><div class="sub">za 1 ${c}</div></div></div>`).join('');
   }
   (async()=>{
-    // fallback (orijentacione vrednosti) ako API zakaže
     const fb={EUR:117.29,USD:101.77,CHF:125.40,GBP:133.90};
     try{
-      const r=await fetch('https://open.er-api.com/v6/latest/RSD');
+      const r=await fetch('https://open.er-api.com/v6/latest/EUR');
       const d=await r.json();
-      if(d&&d.rates){
-        const per=c=>1/d.rates[c];          // koliko RSD za 1 jedinicu valute
+      if(d&&d.rates&&d.rates.RSD){
+        const rsd=d.rates.RSD;
         const datum=(d.time_last_update_utc||'').slice(0,16)||new Date().toLocaleDateString('sr-RS');
-        renderKurs({EUR:per('EUR'),USD:per('USD'),CHF:per('CHF'),GBP:per('GBP')},datum);
+        renderKurs({EUR:rsd,USD:rsd/d.rates.USD,CHF:rsd/d.rates.CHF,GBP:rsd/d.rates.GBP},datum);
       }else throw 0;
     }catch(e){
       renderKurs(fb,'orijentaciono');
