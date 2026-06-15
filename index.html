@@ -370,40 +370,9 @@
     <section class="sec reveal" id="vesti">
       <div class="sec-head">
         <div><span class="secnum">04 — VESTI</span><h2>Vesti i analize</h2><span class="note" style="display:block;margin-top:4px">Ostanite informisani o promenama na tržištu i bankarskim odlukama.</span></div>
-        <a class="see-all" data-go="vesti">Sve vesti →</a>
+        <a class="see-all" href="https://ghost-production-182e.up.railway.app" target="_blank">Sve vesti →</a>
       </div>
-      <div class="vgrid">
-        <a class="vcard">
-          <div class="vimg" style="background-image:url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=70')">
-            <span class="vbadge" style="background:#0e0f10">TRŽIŠTE</span>
-          </div>
-          <div class="vbody">
-            <div class="vdate">11. jun 2026.</div>
-            <h3>NBS zadržala referentnu stopu na 5,75%</h3>
-            <p>Izvršni odbor Narodne banke Srbije zadržao je referentnu kamatnu stopu na nepromenjenom nivou. Sledeća sednica…</p>
-          </div>
-        </a>
-        <a class="vcard">
-          <div class="vimg" style="background-image:url('https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=600&q=70')">
-            <span class="vbadge" style="background:#16a36a">STAMBENI</span>
-          </div>
-          <div class="vbody">
-            <div class="vdate">10. jun 2026.</div>
-            <h3>Ograničenje kamata na stambene kredite</h3>
-            <p>Najavljen novi nacrt zakona o ograničenju kamatnih stopa. Korisnici sa promenljivom stopom prate dešavanja…</p>
-          </div>
-        </a>
-        <a class="vcard">
-          <div class="vimg" style="background-image:url('https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?w=600&q=70')">
-            <span class="vbadge" style="background:#1e5fb0">SAVETI</span>
-          </div>
-          <div class="vbody">
-            <div class="vdate">8. jun 2026.</div>
-            <h3>Kako se zaštititi od inflacije u 2026.</h3>
-            <p>Analitičari predviđaju stabilizaciju cena, ali štediše se i dalje okreću proverenim vrednostima poput zlata…</p>
-          </div>
-        </a>
-      </div>
+      <div class="vgrid" id="vestiGrid"><div class="skel">Učitavam vesti…</div></div>
     </section>
 
     <!-- BANKE / OGLAŠAVANJE -->
@@ -531,6 +500,38 @@
     }
   }
   loadCrypto();setInterval(loadCrypto,60000);
+
+  /* vesti sa Ghost-a */
+  const GHOST_URL = 'https://ghost-production-182e.up.railway.app';
+  const GHOST_KEY = '88dcff8d71a8ffeaf86c2ce6ff';
+  const tagColors = {'Krediti':'#0e0f10','Finansije':'#16a36a','Saveti':'#1e5fb0','Tržište':'#c0392b'};
+  (async()=>{
+    try{
+      const r = await fetch(`${GHOST_URL}/ghost/api/content/posts/?key=${GHOST_KEY}&limit=3&include=tags&fields=title,excerpt,url,published_at,feature_image,primary_tag`);
+      const d = await r.json();
+      const posts = d.posts||[];
+      if(!posts.length){document.getElementById('vestiGrid').innerHTML='<div class="skel">Uskoro novi članci…</div>';return;}
+      document.getElementById('vestiGrid').innerHTML = posts.map(p=>{
+        const tag = p.primary_tag?.name||'Finansije';
+        const color = tagColors[tag]||'#0e0f10';
+        const date = new Date(p.published_at).toLocaleDateString('sr-RS',{day:'numeric',month:'long',year:'numeric'});
+        const img = p.feature_image||'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=70';
+        const excerpt = (p.excerpt||'').slice(0,120)+'…';
+        return `<a class="vcard" href="${p.url}" target="_blank">
+          <div class="vimg" style="background-image:url('${img}')">
+            <span class="vbadge" style="background:${color}">${tag.toUpperCase()}</span>
+          </div>
+          <div class="vbody">
+            <div class="vdate">${date}</div>
+            <h3>${p.title}</h3>
+            <p>${excerpt}</p>
+          </div>
+        </a>`;
+      }).join('');
+    }catch(e){
+      document.getElementById('vestiGrid').innerHTML='<div class="skel">Vesti trenutno nedostupne.</div>';
+    }
+  })();
 
   /* scroll reveal */
   const io=new IntersectionObserver((entries)=>{
